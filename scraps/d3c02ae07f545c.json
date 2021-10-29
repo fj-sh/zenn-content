@@ -1,0 +1,53 @@
+{
+  "title": "TypeScript で Vue プロジェクトを始める",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-06-06",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "プロジェクトを作成する。\n\n```console\n$ vue create ts-vue\n```\n\nTypeScript を選択する。\n\n![](https://storage.googleapis.com/zenn-user-upload/44fcc4ad110420c94d5849fa.png)\n\nUse class-style component syntax は \"No\" とする。\n\n![](https://storage.googleapis.com/zenn-user-upload/1fbcc0230ce2259e5e09499a.png)\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## WebStormのプラグイン\n\n`Preferences > Plugins`でプラグインのインストールができる。\n\nこの辺を参考にする。\n[WebStormでVue.jsの快適な開発環境をつくる](https://qiita.com/IsaoTakahashi/items/20c82de0ddd2b71f4f75)"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "- `tsconfig.json`はTypeScript の設定ファイル\n- TypeScript プロジェクトのルートディレクトリに配置する\n- vue cli で TypeScript を選択したら自動的に作成される\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "- `.eslintrc.json` はESLint を特定するためのファイル\n- Lint はコードを分析して潜在的なエラーをはじき出すための過程のこと\n\n```js:.eslintrc.js\nmodule.exports = {\n  root: true,\n  env: {\n    node: true,\n  },\n  extends: [\n    \"plugin:vue/vue3-essential\",\n    \"eslint:recommended\",\n    \"@vue/typescript/recommended\",\n    \"@vue/prettier\",\n    \"@vue/prettier/@typescript-eslint\",\n  ],\n  parserOptions: {\n    ecmaVersion: 2020,\n  },\n  rules: {\n    \"no-console\": process.env.NODE_ENV === \"production\" ? \"warn\" : \"off\",\n    \"no-debugger\": process.env.NODE_ENV === \"production\" ? \"warn\" : \"off\",\n    \"no-unused-vars\": \"off\",\n    \"no-return-assign\": \"off\",\n    \"comma-dangle\": \"off\",\n    \"quotes\": \"off\",\n    \"semi\": \"off\",\n    \"arrow-body-style\": \"off\",\n    \"max-len\": [\n      \"error\",\n      { \"code\": 100 }\n    ],\n    \"@typescript-eslint/no-unused-vars\": \"error\"\n  },\n};\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## src/shims-vue.d.ts\n\n- `shims-vue.d.ts` は宣言ファイル\n- `.ts`ファイルはJavaScriptにコンパイルされるTypeScript ファイルを示す\n- `.d.ts`ファイルは宣言ファイルのこと。declaration files\n- `shims-vue.d.ts はVue CLI に作られる宣言ファイル\n\n```ts:shims-vue.d.ts\ndeclare module '*.vue' {\n  import type { DefineComponent } from 'vue'\n  const component: DefineComponent<{}, {}, any>\n  export default component\n}\n```\n\n\n## Declaration Files\n\n```console\n$ npm install -D node express\n$ npm install -D @types/node @types/express\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "コンポーネントでTypeScriptを使えるようにするためには、`<script>`セクションで`lang=\"ts\"`を指定する。\n\n```vue\n<script lang=\"ts\">\nimport { defineComponent } from 'vue'\n\nexport default defineComponent({\n\n}) \n</script>\n```\n\n`defineComponent()`でコンポーネントを定義することによって、Vue のコンポーネントオプション内の型をTypeScriptが推論できるようになる。\n\n[Using with Composition API](https://v3.vuejs.org/guide/typescript-support.html#using-with-composition-api)\n\n```vue\nimport { defineComponent } from 'vue'\n\nconst Component = defineComponent({\n  props: {\n    message: {\n      type: String,\n      required: true\n    }\n  },\n\n  setup(props) {\n    const result = props.message.split('') // correct, 'message' is typed as a string\n    const filtered = props.message.filter(p => p.value) // an error will be thrown: Property 'filter' does not exist on type 'string'\n  }\n})\n```\n\nVue.jsの公式ドキュメント[TypeScript Support](https://v3.vuejs.org/guide/typescript-support.html)は必読。"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-07",
+      "body_markdown": "TypeScript ではオブジェクトの型を表現するために2つの方法がある。\n\n```ts\n// Type Alias\ntype Listing = {}\n```\n\n```ts\n// Interface\ninterface Listing {}\n```\n\n例：\n```ts\nexport interface Listing {\n  id: string;\n  title: string;\n  description: string;\n  image: string;\n  address: string;\n  price: number;\n  numOfGuests: number;\n  numOfBeds: number;\n  numOfBaths: number;\n  rating: number;\n}\n\ninterface State {\n  listings: Listing[];\n  loading: boolean;\n}\n```\n\n型定義を オブジェクトの生成に適用する。\n\n```ts\nconst state = reactive<State>({\n  listings: [],\n  loading: false\n});\n```\n\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-07",
+      "body_markdown": "- Vue の `reactive()` 関数は型変数を受け取ることができるジェネリック関数\n\n> ジェネリック関数(generic function)とは、渡される引数のクラスに応じて、自分自身（＝generic function）のために予め定義された複数のメソッドからいずれかを選んで実行する関数のことである。\n\n> 即ち、「関数名（引数）」という、字面上は全く同じ形式で呼び出されながら、引数のクラスによって（＝いわば呼び出される文脈によって）、実際には別の処理を実行する関数のことである。\n[ジェネリック関数(generic function)とは何か？](https://clover.fcg.world/2016/05/02/3792/)\n\n```ts\nconst state = reactive<State>({\n  listings: [],\n  loading: false\n})\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-08",
+      "body_markdown": "Type assertions のやり方は2通りある。\n\n```ts\nlet message: string = \"This is a string\"\n\nreturn <number>message\nreturn message as number\n```\n\n[Type Assertion（型アサーション）](https://typescript-jp.gitbook.io/deep-dive/type-system/type-assertion)\n\nVue のプロパティを TypeScript オブジェクトとして扱うのであれば、プロパティの型は `PropType` として宣言する。\n\n```vue\nexport default defineComponent({\n  name: \"ListingsList\",\n  props: {\n    listings: {\n      type: Array as PropType<Listing[]>,\n    },\n  },\n// 省略\n```"
+    }
+  ]
+}

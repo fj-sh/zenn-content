@@ -1,0 +1,30 @@
+{
+  "title": "deviseとcancancanで権限管理",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-06-08",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-08",
+      "body_markdown": "## devise のインストール\n\n```ruby:Gemfile\ngem 'devise\n```\n\nコマンド実行。\n\n```console\n$ bundle install\n$ rails g devise:install\n```\n\n以下を追加。\n\n```ruby:config/environments/development.rb\n config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }\n```\n\n`root_url` を設定。\n\n```ruby:config/routes.rb\nRails.application.routes.draw do\n  root to: \"home#index\"\nend\n```",
+      "body_updated_at": "2021-06-08"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-09",
+      "body_markdown": "## トーストを表示するために toastr をインストール\n\n```console\n$ yarn add toastr\n```\n\n`toastr`をimport\n\n```js:app/javascripts/packs/application.js\nglobal.toastr = require(\"toastr\")\nimport \"../stylesheets/application\"\n```\n\n```scss:app/javascript/stylesheets/application.scss\n@import 'toastr\n```\n\napplication.html.erbを編集。\n\n```erb:app/views/layouts/application.html.erb\n<!DOCTYPE html>\n<html>\n  <head>\n    <title>App</title>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n    <%= csrf_meta_tags %>\n    <%= csp_meta_tag %>\n\n    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>\n    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>\n  </head>\n  <body>\n    <% unless flash.empty? %>\n      <script type=\"text/javascript\">\n        <% flash.each do |f| %>\n          <% type = f[0].to_s.gsub('alert', 'error').gsub('notice', 'info') %>\n        toastr['<%= type %>']('<%= f[1] %>')\n        <% end %>\n      </script>\n    <% end %>\n    <%= yield %>\n  </body>\n</html>\n\n```\n",
+      "body_updated_at": "2021-06-09"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-09",
+      "body_markdown": "\n```console\n$ rails g devise user\n```\n\nマイグレーションファイルを編集。\n\n```rb:db/migrate/xxxx_devise_create_users.rb\n# frozen_string_literal: true\n\nclass DeviseCreateUsers < ActiveRecord::Migration[6.1]\n  def change\n    create_table :users do |t|\n      ## Database authenticatable\n      t.string :email,              null: false, default: \"\"\n      t.string :encrypted_password, null: false, default: \"\"\n\n      ## Recoverable\n      t.string   :reset_password_token\n      t.datetime :reset_password_sent_at\n\n      ## Rememberable\n      t.datetime :remember_created_at\n\n      ## Trackable\n      # t.integer  :sign_in_count, default: 0, null: false\n      # t.datetime :current_sign_in_at\n      # t.datetime :last_sign_in_at\n      # t.string   :current_sign_in_ip\n      # t.string   :last_sign_in_ip\n\n      ## Confirmable\n      # t.string   :confirmation_token\n      # t.datetime :confirmed_at\n      # t.datetime :confirmation_sent_at\n      # t.string   :unconfirmed_email # Only if using reconfirmable\n\n      ## Lockable\n      # t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts\n      # t.string   :unlock_token # Only if unlock strategy is :email or :both\n      # t.datetime :locked_at\n\n\n      t.timestamps null: false\n    end\n\n    add_index :users, :email,                unique: true\n    add_index :users, :reset_password_token, unique: true\n    # add_index :users, :confirmation_token,   unique: true\n    # add_index :users, :unlock_token,         unique: true\n     \n    User.create! do |u|\n      u.email = 'test@test.com'\n      u.password = 'password'\n    end\n  end\nend\n\n```\n\n実行:\n\n```console\n$ rails db:migrate\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-09",
+      "body_markdown": "以下を追加：\n\n```rb:app/controllers/application_controller.rb\nclass ApplicationController < ActionController::Base\n  protect_from_forgery with: :exception\n\n  before_action :authenticate_user!\nend\n```"
+    }
+  ]
+}

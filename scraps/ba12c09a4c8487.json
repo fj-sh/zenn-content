@@ -1,0 +1,19 @@
+{
+  "title": "Heroku に Node.js アプリをデプロイする",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-08-22",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-08-22",
+      "body_markdown": "## package.json には Node.jsのバージョンを指定する\n\n```json:package.json\n  \"engines\": {\n    \"node\": \"16.6\",\n    \"npm\": \"7.19\"\n  },\n```\n[Language SupportNode.jsHeroku Node.js Support\nHeroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)\n\n## heroku にコミットを push する\n\n手元の変更は `git commit` でコミットした後に heroku に push する。\n\n```console\n$ git push heroku main\n```\n\n## ブラウザを開いたときに「Application error」が出た場合\n\n以下のコマンドでログを確認する。\n\n```console\n$ heroku logs --tail\n```\n\n## `scripts` には `start` コマンドが必要\n\n`package.json` の `scripts` に `start` コマンドがないと 「Application error」となる。"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-08-23",
+      "body_markdown": "## 環境変数の値を表示する\n\n```console\n$ heroku config\nGITHUB_USERNAME: joesmith\nOTHER_VAR:    production\n\n$ heroku config:get GITHUB_USERNAME\njoesmith\n```\n\n## 環境変数を設定する\n\n```console\n$ heroku config:set GITHUB_USERNAME=joesmith\n```\n\n## 環境変数を削除する\n\n```console\nheroku config:unset GITHUB_USERNAME\n```\n[設定と環境設定](https://devcenter.heroku.com/ja/articles/config-vars)",
+      "body_updated_at": "2021-08-23"
+    }
+  ]
+}

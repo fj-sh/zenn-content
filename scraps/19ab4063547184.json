@@ -1,0 +1,54 @@
+{
+  "title": "Vue の Composition API の基本機能をまとめる",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-06-06",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## setup\n\n- Composition API は Vue のコア機能を独立した関数として公開するAPIである。\n- `setup()` 関数はコンポーネントが作られる前に実行される\n- `setup()`関数は2つの引数を受け取る\n  - `props`: 親コンポーネントから渡されるデータ\n  - `context`: 公開される 3つのプロパティ。attributes, slots, emit events。 \n\n```vue\n<script>\n  export default {\n    name: \"MyComponent\",\n    setup(props, context) {\n    // allow us to access props and context\n    },\n  };\n</script>\n```\n\n`setup()`関数の最後で `template` からアクセスするオブジェクトを返す。\n\n```vue\n<template>\n  <h2>{{ getGreeting }}</h2>\n  <p>This is the Hello World component.</p>\n</template>\n\n<script>\nexport default {\n  name: 'MyComponent',\n  setup() {\n    return {\n      getGreeting: 'Hello World'\n    }\n  }\n}\n</script>\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## ref()\n\n- `data()` の代わりになるもの\n- `ref()`はプリミティブな値を受け取り、reactive で可変なオブkジェクトを返す\n-  `setup()`で return された ref オブジェクトは template からアクセスできる\n\nNuxt で使ってみる。\n\n```vue: components/MyComponent1.vue\n<template>\n  <div>\n    <h2>{{ getGreeting }}</h2>\n    <p>This is the Hello World component.</p>\n  </div>\n\n</template>\n\n<script>\nimport { ref } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent1',\n  setup() {\n    const getGreeting = ref('Hello World')\n    return {\n      getGreeting: 'Hello World'\n    }\n  }\n}\n</script>\n``` \n\n```vue:pages/sample.vue\n<template>\n  <div>\n    <MyComponent1 />\n  </div>\n</template>\n\n<script lang=\"ts\">\nimport { defineComponent } from \"@nuxtjs/composition-api\";\nimport MyComponent1 from \"~/components/MyComponent1.vue\"\n\nexport default defineComponent({\n  components: {\n    MyComponent1\n  },\n  setup() {},\n});\n</script>\n\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## ref()\n\n`setup()` 内で ref オブジェクトにアクセスするときは `.value` プロパティを利用する。\n\n```vue:components/MyComponent1.vue\n<template>\n  <div>\n    <h2>{{ getGreeting }}</h2>\n    <p>This is the Hello World component.</p>\n  </div>\n\n</template>\n\n<script>\nimport { ref } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent1',\n  setup() {\n    const getGreeting = ref('Hello World')\n\n    console.log('getGreeting: ',getGreeting.value)\n    return {\n      getGreeting: 'Hello World'\n    }\n  }\n}\n</script>\n\n```\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## methods() プロパティは使わない\n\noptions API では`methods()`プロパティを使っていたが、 Compostion API では必要ない。\nJavaScript のメソッドを定義する。\n\n`setup()`内で定義したメソッドを return すれば template で使えるようになる。\n\n```vue:components/MyComponent1.vue\n<template>\n  <div>\n    <h2>{{ getGreeting }}</h2>\n    <p>This is the Hello World component.</p>\n    <button @click=\"updateGreeting\">Update greeting!</button>\n  </div>\n\n</template>\n\n<script>\nimport { ref } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent1',\n  setup() {\n    const getGreeting = ref('Hello World')\n\n    console.log('getGreeting: ',getGreeting.value)\n\n    const updateGreeting = () => {\n      return (getGreeting.value = 'Welcome to the app!')\n    }\n    return {\n      getGreeting,\n      updateGreeting,\n    }\n  }\n}\n</script>\n\n```\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## reactive()\n\n- `.value` なしでプロパティを更新できる\n\n```vue:components/MyComponents2.vue\n<template>\n  <div>\n    <h2>{{ greeting.message }}</h2>\n    <p>{{ greeting.description }}</p>\n    <button @click=\"updateGreeting\">Update Greeting</button>\n  </div>\n</template>\n\n<script>\nimport { reactive } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent2',\n  setup() {\n    const greeting = reactive({\n      message: 'Hello World',\n      description: 'Welcome to the app!'\n    })\n\n    const updateGreeting = () => {\n      greeting.message = 'Hello Hello';\n      greeting.description = 'welcome welcome'\n    }\n\n    return {\n      greeting,\n      updateGreeting\n    }\n  }\n}\n</script>\n\n```\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## ref() と reactive() の違い\n\n1. `ref()` はプリミティブな値をリアクティブにするために使う。 `reactive()` は JavaScript のオブジェクトをリアクティブにするために使う\n2. `reactive()`で作られたオブジェクトは再構築したりスプレッド構文で展開したりはできない\n\n[JSのスプレッド構文を理解する](https://qiita.com/akisx/items/682a4283c13fe336c547)\n\n`reactive()`関数を使いつつ、オブジェクトを再構築したいときは`toRefs()`関数を使う。\n`toRefs()`でリアクティブ化されたプロパティの値にアクセスするには`.value`を使う。\n\n```vue:components/MyComponent2.vue\n<template>\n  <div>\n    <h2>{{ message }}</h2>\n    <p>{{ description }}</p>\n    <button @click=\"updateGreeting\">Update Greeting</button>\n  </div>\n</template>\n\n<script>\nimport { reactive, toRefs } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent2',\n  setup() {\n    const greeting = reactive({\n      message: 'Hello World',\n      description: 'Welcome to the app!'\n    })\n\n    const greetingRefs = toRefs(greeting)\n\n    const { message, description } = greetingRefs\n\n    const updateGreeting = () => {\n      message.value = 'Hello Hello';\n      description.value = 'welcome welcome'\n    }\n\n    return {\n      ...greetingRefs,\n      updateGreeting\n    }\n  }\n}\n</script>\n\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## computed()\n\n`computed()`をimport して使う。\n\n```vue\n<template>\n  <div>\n    <h2>{{ getReversedGreeting }}</h2>\n    <p> This is hello world component </p>\n  </div>\n</template>\n\n<script>\nimport { ref, computed } from '@nuxtjs/composition-api'\n\nexport default {\n  name: 'MyComponent3',\n  setup() {\n    const greeting = ref('Hello World!')\n\n    const getReversedGreeting = computed(() => {\n      return greeting.value.split(\"\").reverse().join(\"\")\n    })\n\n    return {\n      getReversedGreeting\n    }\n  }\n}\n</script>\n\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## Lifecycle Hooks\n\n`import { onMounted, onUpdated, onUnmounted } from 'vue'`\n\n```vue\nonMounted(() => console.log(\"Component mounted!\"));\n```\n\n- `onMounted`\n- `onUpdated`\n- `onUnmounted`\n- `beforeUnmount`\n- `renderTracked`\n\n色々あるので詳細は公式チュートリアルを参照する。\n\n[Lifecycle Hooks](https://v3.vuejs.org/guide/composition-api-lifecycle-hooks.html)\n",
+      "body_updated_at": "2021-06-06"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-06-06",
+      "body_markdown": "## Composable functions\n\n- composition API はコンポーネント間でロジックを使い回せる\n- ロジックを切り離して別ファイルで定義できる\n- ロジックとなる関数をコンポーネントの外に定義できる\n\n```ts:composables/useNotification.ts\nimport { reactive } from '@nuxtjs/composition-api'\n\nconst data = reactive({\n  message: \"\",\n  active: false,\n})\n\nconst useNotification = () => {\n  const setNotification = (newMessage: string) => {\n    data.message = newMessage\n    return (data.active = true)\n  }\n\n  return {\n    notification: data,\n    setNotification\n  }\n}\n\nexport default useNotification\n```\n\nコンポーネント：\n```vue:components/MyComponent4.vue\n<template>\n  <div>\n    {{notification.message}}\n  </div>\n</template>\n<script lang=\"ts\">\nimport { onMounted } from '@nuxtjs/composition-api'\nimport useNotification from '@/composables/useNotification'\n\nexport default {\n  name: 'MyComponent4',\n  setup() {\n    const { notification, setNotification } = useNotification()\n\n    onMounted(() => {\n      setNotification('Component has mounted!')\n    })\n    return {\n      notification\n    }\n  }\n}\n</script>\n\n```\n"
+    }
+  ]
+}

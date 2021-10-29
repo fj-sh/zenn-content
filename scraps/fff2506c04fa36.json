@@ -1,0 +1,45 @@
+{
+  "title": "GraphQL に入門する",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-09-13",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-13",
+      "body_markdown": "## curl と httpie で GraphQL のリクエスト\n\n`curl` で GraphQL のリクエストを送る。\n\n```console\n$ curl 'http://snowtooth.herokuapp.com/' \\\n -H 'Content-Type: application/json' \\\n --data '{\"query\": \"{allLifts { name }}\"}'\n\n{\"data\":{\"allLifts\":[{\"name\":\"Astra Express\"},{\"name\":\"Jazz Cat\"},{\"name\":\"Jolly Roger\"},{\"name\":\"Neptune Rope\"},{\"name\":\"Panorama\"},{\"name\":\"Prickly Peak\"},{\"name\":\"Snowtooth Express\"},{\"name\":\"Summit\"},{\"name\":\"Wally's\"},{\"name\":\"Western States\"},{\"name\":\"Whirlybird\"}]}}\n```\n\n`httpie` で `curl` と同じリクエストを投げてみる。\n\n```console\nhttp POST http://snowtooth.herokuapp.com/ query=\"query { allLifts { name } }\"\n\n\n{\n    \"data\": {\n        \"allLifts\": [\n            {\n                \"name\": \"Astra Express\"\n            },\n            {\n                \"name\": \"Jazz Cat\"\n            },\n...\n```\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-13",
+      "body_markdown": "データの変更を加えたいときは `mutation` を送信する。\n\n```console\n$ curl 'http://snowtooth.herokuapp.com/' \\\n> -H 'Content-Type: application/json' \\\n> --data '{\"query\": \"mutation { setLiftStatus(id: \\\"panorama\\\" status: OPEN) {na\nme status}}\"}'\n\n\n{\"data\":{\"setLiftStatus\":{\"name\":\"Panorama\",\"status\":\"OPEN\"}}}\n```\n\n`httpie` で `mutation` リクエストを送信する。\n\n```console\n$ http POST  http://snowtooth.herokuapp.com/ query=\"mutation { setLiftStatus(id:\\\"panorama\\\" status: OPEN) { name status } }\"\n\nHTTP/1.1 200 OK\nAccess-Control-Allow-Origin: *\nConnection: keep-alive\nContent-Length: 63\nContent-Type: application/json; charset=utf-8\nDate: Mon, 13 Sep 2021 11:04:36 GMT\nEtag: W/\"3f-PnzDqS3CCe9M5hTFSulI00k/NTM\"\nServer: Cowboy\nVia: 1.1 vegur\n\n{\n    \"data\": {\n        \"setLiftStatus\": {\n            \"name\": \"Panorama\",\n            \"status\": \"OPEN\"\n        }\n    }\n}\n\n```",
+      "body_updated_at": "2021-09-13"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-13",
+      "body_markdown": "## 公開 GraphQL API\n\n- [SWAPI](https://swapi.dev/)\n- [GitHub GraphQL API](https://docs.github.com/ja/graphql/overview/explorer)\n\n### GraphQL Playground のデスクトップ版をインストール\n\n```console\n$ brew install graphql-playground\n```",
+      "body_updated_at": "2021-09-13"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-13",
+      "body_markdown": "## 通常のクエリ\n\n```graphql\nquery liftAndTrails {\n  liftCount(status: OPEN)\n  allLifts {\n    name\n    status\n  }\n  allTrails {\n    id\n    name\n    difficulty\n    groomed\n    night\n  }\n}\n```\n\n## JSONレスポンスのフィールド名を任意のものに置き換える\n\n```graphql\nquery liftAndTrails {\n  liftCount(status: OPEN)\n  chairlifts: allLifts {\n    name\n    status\n  }\n  skiSlopes: allTrails {\n    id\n    name\n    difficulty\n    groomed\n    night\n  }\n}\n```\n\nレスポンス：\n\n```json\n{\n  \"data\": {\n    \"liftCount\": 7,\n    \"chairlifts\": [\n      {\n        \"name\": \"Astra Express\",\n        \"status\": \"OPEN\"\n      },\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-13",
+      "body_markdown": "## クエリで結果をフィルタリングする\n\n```graphql\nquery closedLifts {\n  allLifts(status: CLOSED) {\n    name\n    status\n  }\n}\n```\n\n```graphql\nquery trailsAccessedByJazzCat {\n  Lift(id: \"jazz-cat\") {\n    capacity\n    trailAccess {\n      id\n      name\n      status\n      difficulty\n      trees\n    }\n  }\n}\n```\n\n\n```graphql\nquery liftToAccessTrial {\n  Trail(id: \"dance-fight\") {\n    groomed\n    accessedByLifts {\n      name\n      capacity\n      night\n      elevationGain\n    }\n  }\n}\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-14",
+      "body_markdown": "## フラグメント\n\nフラグメントとは、複数の場所で使い回すことができる選択セットのことです。\n\n```graphql\nfragment liftInfo on Lift {\n  name\n  status\n  capacity\n  night\n  elevationGain\n}\n\nfragment trailInfo on Trail {\n  name\n  difficulty\n  accessedByLifts {\n    ...liftInfo\n  }\n}\n\nquery {\n  Lift(id: \"jazz-cat\") {\n    ...liftInfo\n    trailAccess {\n      name\n      difficulty\n    }\n  }\n  Trail(id: \"river-run\") {\n    ...trailInfo\n  }\n}\n```\n\n### ひとつの選択セットから複数のフラグメントを呼び出す\n\n```qraphql\nfragment trailStatus on Trail {\n  name\n  status\n}\n\nfragment trailDetails on Trail {\n  groomed\n  trees\n  night\n}\n\nquery {\n  allTrails {\n    ...trailStatus\n    ...trailDetails\n  }\n}\n```"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-09-15",
+      "body_markdown": "## サブスクリプション\n\nサブスクリプションを実行すると、状態が変化したことの通知を WebSocket を通じて受け取ることができるようになります。\n\n[http://snowtooth.moonhighway.com/](http://snowtooth.moonhighway.com/)\n\n```graphql\nsubscription {\n  liftStatusChange {\n    name\n    capacity\n    status\n  }\n}\n```\n\n上のサブスクリプションをリクエストして、データを監視しているときに、以下のミューテーションでデータを変更します。\n\n```graphql\nmutation closeLift {\n  setLiftStatus(id: \"astra-express\" status: HOLD) {\n    name\n    status\n  }\n}\n```\n\nデータの変更がサブスクリプションを実行しているクライアントに向けてプッシュされます。"
+    }
+  ]
+}

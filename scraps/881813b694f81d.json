@@ -1,0 +1,23 @@
+{
+  "title": "Chrome拡張機能開発を始める",
+  "closed": false,
+  "archived": false,
+  "created_at": "2021-08-28",
+  "comments": [
+    {
+      "author": "fjsh",
+      "created_at": "2021-08-28",
+      "body_markdown": "適当にディレクトリを作り、`create-react-app`で React プロジェクトを作る。\n\n```console\n$ npx create-react-app my-extension\n```\n\nChrome拡張はルートディレクトリに `manifest.json` が必要。\n`create-react-app` で作成された `public/manifest.json` を上書きする。\n\n```json:public/manifest.json\n{\n  \"manifest_version\": 2,\n\n  \"name\": \"My Extension\",\n  \"description\": \"Chrome拡張のサンプルです。\",\n  \"version\": \"0.0.1\",\n\n  \"browser_action\": {\n    \"default_popup\": \"index.html\",\n    \"default_title\": \"Open the popup\"\n  },\n  \"icons\": {\n    \"16\": \"logo192.png\",\n    \"48\": \"logo192.png\",\n    \"128\": \"logo192.png\"\n  },\n  \"permissions\": [\n  ]\n}\n```\n\nアプリケーションをビルドする。\n\n```console\n$ npm run build\n```\n\nChromeブラウザに以下を入力する。\n\n```\nchrome://extensions/\n```\n\n「パッケージ化されていない拡張機能を読み込む」をクリック。\n\n![](https://storage.googleapis.com/zenn-user-upload/d6ab08b67e90f9c7621623a9.png)\n\n\n`build`フォルダを選択して読み込む。\n\n![](https://storage.googleapis.com/zenn-user-upload/b5139960231189816c38bd79.png)\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-08-28",
+      "body_markdown": "[Creating a Chrome Extension with React and TypeScript](https://react.christmas/2020/12)\n\n```console\nnpx degit https://github.com/sivertschou/react-typescript-chrome-extension-boilerplate.git#christmas snow-extension\n```\n\n`degit`というのは git clone より簡単にプロジェクトのテンプレートをダウンロードする npm ライブラリ。\n\n[degit — straightforward project scaffolding](https://www.npmjs.com/package/degit)\n\nテンプレートがほしい、という場面は何度もあったので、`degit` をうまく活用したい。\n\n`degit` してから、`npm install` を実行。\n\n```console\n$ npm install\n```\n\n"
+    },
+    {
+      "author": "fjsh",
+      "created_at": "2021-08-28",
+      "body_markdown": "`manifest.json` について。\n\n browser_actionとその代替であるpage_actionは、拡張機能にポップアップを組み込むための2つの方法です。\n\nブラウザアクションは常にブラウザで利用可能ですが、ページアクションは特定のページでしか利用できないように設定されています。\n\n私たちは、現在のページが何であっても拡張機能を利用できるようにするつもりなので、browser_actionのままにしておきます。\n\ndefault_iconは、アドレスバーの右側にある、拡張機能のクリック可能なアイコンとして使用され、default_popupは、アイコンがクリックされたときにレンダリングされます。先ほど述べたように、このポップアップにReactのコードを実装していきます。\n\n--- \n\nbackgroundでは、バックグラウンドで実行するスクリプトを指定したり、そのスクリプトを永続化するかどうかを指定したりできます。persistentフラグがfalseに設定されている場合、スクリプトは必要なときにロードされ、アイドル状態になるとアンロードされます。\n\nbackground.tsではなく、background.jsを指定していることに注意してください。\nこれは、background.tsが他のビルドと一緒にパッケージ化される前に、JavaScriptのコードにコンパイルされるためです。\n\n--- \n\ncontent_scriptsでは、指定されたウェブページにアクセスできるスクリプトとそのコンテキストを指定できます。 \nmatchesでは、これらのスクリプトがアクセスできるウェブサイトを指定しますが、現在は「すべてのページ」に設定されています。\nマッチパターンの詳細については、こちらを参照してください。背景スクリプトを定義したのと同様に、jsキーを使って注入するJavaScriptコードを定義します。\ncontent_scriptsはオブジェクトの配列なので、マッチしたURLに応じて異なるスクリプトを注入することができることになります。"
+    }
+  ]
+}
