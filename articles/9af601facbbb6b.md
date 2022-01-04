@@ -131,3 +131,7 @@ The app build failed to produce artifact folder: 'out'. Please ensure this prope
 これで `git push origin main` したらデプロイできるようになりました。
 
 [Next.js アプリを GitHub Actions でビルドして GitHub Pages で公開する](https://maku.blog/p/au8ju6g/)
+
+`next/image` を使っていると `next export` でエラーが発生するようなので、適宜 `<img>` に置き換えるなどの修正が必要です。
+
+[Next.js11 で静的 HTML を生成しようとすると next/image や <img> タグに関するエラーが発生した](https://qiita.com/toshikisugiyama/items/9d9ada2de0cedb03a21e)
