@@ -106,25 +106,30 @@ The app build failed to produce artifact folder: 'out'. Please ensure this prope
 
 `.github/workflows/azure-xxxx.yml` に以下のようなコマンドを追加します。
 
-```yaml
+```diff yaml
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16.x
++      - name: Setup Node.js
++        uses: actions/setup-node@v2
++        with:
++          node-version: 16.x
++
++      - name: Install NPM packages
++        run: npm i
++
++      - name: Build Next.js app
++        run: npm run build && npm run export
 
-      - name: Install NPM packages
-        run: npm i
-
-      - name: Build Next.js app
-        run: npm run build && npm run export
-
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
++      - name: Build And Deploy
++        id: builddeploy
++        uses: Azure/static-web-apps-deploy@v1
       // 略
 ```
 
