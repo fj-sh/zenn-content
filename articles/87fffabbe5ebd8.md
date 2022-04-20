@@ -13,16 +13,21 @@ published: true
 
 ## シチュエーション
 
-Next.js の API を叩くと、 Next.js から [RESAS](https://resas.go.jp/#/13/13101) の API を呼び出し、都道府県の一覧と、都道府県の総人口を取得する。
+Next.js の API を叩く。
 
-何度も API を叩くと Rate Limit に引っかかるかもしれない。有料なら課金されてしまう。
-それに都道府県の情報はそれほど頻繁に変わるものではないので、一度取得した結果を使い回しても問題はないはずだ。
+API を叩かれた Next.js は [RESAS](https://resas.go.jp/#/13/13101) の API を呼び出し、都道府県の一覧や、都道府県の総人口を取得する。
+
+Next.js は都道府県の一覧や総人口の情報を API を叩いた人に返す。
+
+何度も API を叩くと Rate Limit に引っかかるかもしれない。有料な API なら課金されてしまう。
+
+都道府県の情報はそれほど頻繁に変わるものではないので、一度取得した結果を使い回しても問題はないはずだ。
 
 Next.js のサーバ起動後、最初のリクエストは RESAS の API を呼び出し、その結果はキャッシュして使い回そう。
 
 ## 使ったライブラリ
 
-[node-cache](https://www.npmjs.com/package/node-cache) を使って結果をキャッシュした。
+[node-cache](https://www.npmjs.com/package/node-cache) を使って取得結果をキャッシュした。
 
 ## ソースコード
 
