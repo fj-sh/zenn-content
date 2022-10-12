@@ -84,13 +84,6 @@ npm install @nestjs/typeorm typeorm reflect-metadata pg
 
 PostgreSQL の設定情報を環境変数から読み込むために、 `@nestjs/config` をインストールします。
 
-<!--
-バリデーションを行うための `Joi` をインストールします。
-
-```shell
-npm install @nestjs/config joi
-``` -->
-
 ```shell
 npm install @nestjs/config
 ```
@@ -135,12 +128,10 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 export class DatabaseModule {}
 ```
 
-:::note
-
 `synchronize` を `true` に設定すると、エンティティの変更を自動的に Database に反映してくれます。
-本番環境では意図せずデータが削除されてしまうこともあるので、明示的にマイグレーションするのが望ましいです。
+本番環境では意図せずデータが削除されてしまうこともあるので、明示的にマイグレーションします。
 
-:::
+マイグレーションのやり方は別の記事で紹介します。
 
 ## リソースの作成
 
@@ -301,18 +292,17 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-} from "@nestjs/common";
-import { CreateTaskDto } from "./dto/create-task.dto";
-import { UpdateTaskDto } from "./dto/update-task.dto";
-import { Task } from "./entities/task.entity";
-import { DeleteResult, Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
+} from '@nestjs/common';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task } from './entities/task.entity';
+import { DeleteResult, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TaskRepository } from './task.repository';
 
 @Injectable()
 export class TasksService {
-  constructor(
-    @InjectRepository(Task) private taskRepository: Repository<Task>
-  ) {}
+  constructor(private readonly taskRepository: TaskRepository) {}
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
     return await this.taskRepository
@@ -323,9 +313,7 @@ export class TasksService {
   }
 
   async findAll() {
-    return await this.taskRepository.find().catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    return await this.taskRepository.find();
   }
 
   async findOne(id: number) {
@@ -333,7 +321,7 @@ export class TasksService {
 
     if (!task) {
       throw new NotFoundException(
-        `${id}に一致するデータが見つかりませんでした。`
+        `${id}に一致するデータが見つかりませんでした。`,
       );
     }
 
@@ -352,7 +340,7 @@ export class TasksService {
     }
 
     throw new NotFoundException(
-      `${id}に一致するデータが見つかりませんでした。`
+      `${id}に一致するデータが見つかりませんでした。`,
     );
   }
 
@@ -363,13 +351,14 @@ export class TasksService {
 
     if (!response.affected) {
       throw new NotFoundException(
-        `${id} に一致するデータが見つかりませんでした`
+        `${id} に一致するデータが見つかりませんでした`,
       );
     }
 
     return response;
   }
 }
+
 ```
 
 ## Controller の作成
@@ -465,4 +454,51 @@ curl --location --request PATCH 'localhost:3000/tasks/1' \
 ```shell
 curl --location --request DELETE 'localhost:3000/tasks/1' \
     --header 'Content-Type: application/json'
+```
+
+## TypeORM 0.3 でカスタムリポジトリを作成する
+
+ここまでの作業でリクエストは通りますが、カスタムリポジトリも作成してみます。
+
+```ts:src/tasks/task.repository.ts
+import { Task } from './entities/task.entity';
+import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+@Injectable()
+export class TaskRepository extends Repository<Task> {
+  constructor(@InjectRepository(Task) repository: Repository<Task>) {
+    super(repository.target, repository.manager, repository.queryRunner);
+  }
+}
+
+```
+
+### カスタムリポジトリをサービスに組み込む
+
+```diff ts:src/tasks/tasks.service.ts
+@Injectable()
+export class TasksService {
++  constructor(private readonly taskRepository: TaskRepository) {}
+```
+
+### providers に追加する
+
+```diff ts:src/tasks/tasks.module.ts
+import { Module } from '@nestjs/common';
+import { TasksService } from './tasks.service';
+import { TasksController } from './tasks.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Task } from './entities/task.entity';
+import { TaskRepository } from './task.repository';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Task])],
+  exports: [TypeOrmModule],
+  controllers: [TasksController],
++  providers: [TasksService, TaskRepository],
+})
+export class TasksModule {}
+
 ```
