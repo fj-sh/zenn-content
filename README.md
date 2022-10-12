@@ -4,4 +4,5 @@
 
 ```console
 npx zenn new:article
+npx zenn new:article --slug "nestjs-graphql"  --title "NestJS+GraphQLでJWT認証" --type "tech"
 ```
