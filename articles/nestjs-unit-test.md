@@ -1,5 +1,5 @@
 ---
-title: "NestJS+TypeORM 0.3 でユニットテストしてみる"
+title: "NestJSでサービスとコントローラーのユニットテストを作る"
 emoji: "👋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["NestJS"]
