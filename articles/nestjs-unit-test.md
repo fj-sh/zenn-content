@@ -7,8 +7,14 @@ published: true
 ---
 
 [NestJS+TypeORM 0.3 で CRUD 操作を行う](https://zenn.dev/fjsh/articles/nestjs-with-typeorm) の続きです。
+前の記事では、NestJS で超簡単な TODO アプリの CRUD 操作を実装してみました。
 
-## サービスのテストを作ってみる（モックから値を返すパターン）
+この記事では、作成したアプリケーションにテストを追加していきます。
+
+- サービスのテスト
+- コントローラーのテスト
+
+## サービスのテストを作ってみる
 
 ```ts
 import { Test, TestingModule } from "@nestjs/testing";
@@ -132,13 +138,7 @@ describe("TasksServiceの正常系のテスト", () => {
 });
 ```
 
-### TODO:
-
-- その他の CRUD 操作のテストを追加する
-- コントローラーとリポジトリのテストを追加する
-- インメモリ DB を使うパターン（SQLite を使ってテストするパターン）のテストを追加する
-
-## 参考
+### サービスのテストを作る上で参考にした記事
 
 - [Unit testing NestJS applications with Jest](https://blog.logrocket.com/unit-testing-nestjs-applications-with-jest/)
 - [Testing NestJS services with integration tests](https://wanago.io/2020/07/13/api-nestjs-testing-services-controllers-integration-tests/)
@@ -146,6 +146,136 @@ describe("TasksServiceの正常系のテスト", () => {
   - これがうまく動いた記事
 - [Using test database when e2e-testing NestJS](https://www.anycodings.com/1questions/1326348/using-test-database-when-e2e-testing-nestjs)
   - インメモリ DB を使うパターン
+
+## コントローラーのテストを作ってみる
+
+```ts:src/tasks/tasks.controller.spec.ts
+import { Test, TestingModule } from "@nestjs/testing";
+import { TasksController } from "./tasks.controller";
+import { TasksService } from "./tasks.service";
+import { Task } from "./entities/task.entity";
+import { CreateTaskDto } from "./dto/create-task.dto";
+import { UpdateTaskDto } from "./dto/update-task.dto";
+import { DeleteResult } from "typeorm";
+
+describe("TasksController - 正常系", () => {
+  let controller: TasksController;
+  let spyService: TasksService;
+
+  const TasksServiceProvider = {
+    provide: TasksService,
+    useFactory: () => ({
+      create: jest.fn((createTaskDto: CreateTaskDto): Promise<Task> => {
+        return Promise.resolve({ id: 1, name: "勉強" });
+      }),
+      findAll: jest.fn((): Promise<Task[]> => {
+        return Promise.resolve([
+          { id: 1, name: "勉強" },
+          { id: 2, name: "洗濯" },
+        ]);
+      }),
+      update: jest.fn((): Promise<Task> => {
+        return Promise.resolve({
+          id: 1,
+          name: "勉強",
+        });
+      }),
+      remove: jest.fn((): Promise<DeleteResult> => {
+        return Promise.resolve({
+          raw: 1,
+        });
+      }),
+    }),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [TasksController],
+      providers: [TasksServiceProvider],
+    }).compile();
+
+    controller = module.get<TasksController>(TasksController);
+    spyService = module.get<TasksService>(TasksService);
+  });
+
+  it("should be defined", () => {
+    expect(controller).toBeDefined();
+  });
+
+  describe("create メソッドが呼ばれたとき", () => {
+    const createTask: CreateTaskDto = {
+      name: "勉強",
+    };
+    it("TasksService の create メソッドが呼ばれること", () => {
+      controller.create(createTask);
+      expect(spyService.create).toHaveBeenCalled();
+    });
+    it("作成されたタスクが返されること", async () => {
+      const expected: Task = {
+        id: 1,
+        name: "勉強",
+      };
+
+      const actual = await controller.create(createTask);
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("findAll メソッドが呼ばれたとき", () => {
+    it("TasksService の findAll メソッドが呼ばれること", () => {
+      controller.findAll();
+      expect(spyService.findAll).toHaveBeenCalled();
+    });
+    it("タスクのリストが返されること", async () => {
+      const expected: Task[] = [
+        {
+          id: 1,
+          name: "勉強",
+        },
+        {
+          id: 2,
+          name: "洗濯",
+        },
+      ];
+
+      const actual = await controller.findAll();
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("update メソッドが呼ばれたとき", () => {
+    const updateId = "1";
+    const updateTask: UpdateTaskDto = {
+      name: "勉強",
+    };
+    it("TasksService の update メソッドが呼ばれること", () => {
+      controller.update(updateId, updateTask);
+      expect(spyService.update).toHaveBeenCalled();
+    });
+    it("更新されたタスクが返されること", async () => {
+      const expected: Task = {
+        id: 1,
+        name: "勉強",
+      };
+
+      const actual = await controller.update(updateId, updateTask);
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("remove メソッドが呼ばれたとき", () => {
+    const removeId = "1";
+    it("TasksService の remove メソッドが呼ばれること", () => {
+      controller.remove(removeId);
+      expect(spyService.remove).toHaveBeenCalled();
+    });
+  });
+});
+```
+
+### コントローラーのテストを作る上で参考にした記事
+
+- [Unit testing a NestJS App — In shortest steps.](https://nishabe.medium.com/unit-testing-a-nestjs-app-in-shortest-steps-bbe83da6408)
 
 以下、基礎知識的な内容をまとめておきます。
 

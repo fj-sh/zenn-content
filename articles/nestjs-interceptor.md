@@ -7,6 +7,9 @@ published: true
 ---
 
 [NestJS+TypeORM 0.3 で CRUD 操作を行う](https://zenn.dev/fjsh/articles/nestjs-with-typeorm) の続きです。
+上記の記事では NestJS で簡単な CRUD 機能を作成しました。
+
+ここで実験的に interceptor（インターセプター）の機能を追加してみます。
 
 ## インターセプターとは
 
@@ -28,9 +31,15 @@ published: true
 - メソッド単位に設定
 - グローバルに設定
 
+たとえば、NestJS を GraphQL サーバーとして動かしているとして、受け取ったクエリやミューテーションのバリデーションを行ったり、ログを出力する処理を挟み込むことができます。
+
+ヘッダーを検証し、 Valid なら API 呼び出しを許可する、といった使い方もできます。
+
 ## 実際に使ってみる
 
 以下のようなインターセプタを作ってみます。
+
+関数を実行する「前」に受け取ったリクエストの内容をコンソールに出力し、関数を実行した「後」に処理にかかった時間を表示します。
 
 ```ts:src/interceptors/logging.interceptor.ts
 import {
