@@ -294,7 +294,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { TaskRepository } from './task.repository';
 
 @Injectable()
@@ -325,12 +324,11 @@ export class TasksService {
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
-    await this.taskRepository
-      .update(id, { name: updateTaskDto.name })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
+  async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const updated = await this.taskRepository.update(id, {
+      name: updateTaskDto.name,
+    });
+
     const updatedPost = await this.taskRepository.findOneBy({ id });
     if (updatedPost) {
       return updatedPost;
@@ -342,10 +340,9 @@ export class TasksService {
   }
 
   async remove(id: number): Promise<DeleteResult> {
-    const response = await this.taskRepository.delete(id).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const response = await this.taskRepository.delete(id);
 
+    console.log(response);
     if (!response.affected) {
       throw new NotFoundException(
         `${id} に一致するデータが見つかりませんでした`,
@@ -408,7 +405,7 @@ export class TasksController {
 
 ## 動作確認
 
-動作確認してみます。
+curl で動作確認してみます。
 
 ### 登録
 
@@ -452,6 +449,8 @@ curl --location --request PATCH 'localhost:3000/tasks/1' \
 curl --location --request DELETE 'localhost:3000/tasks/1' \
     --header 'Content-Type: application/json'
 ```
+
+次の記事ではサービスのテストを作成してみます。
 
 ## TypeORM 0.3 でカスタムリポジトリを作成する
 
