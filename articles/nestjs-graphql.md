@@ -23,12 +23,12 @@ published: true
 
 登場するライブラリのバージョンは以下のとおりです。
 
-| ライブラリ              | バージョン  |
-| ----------------------- | ----------- |
-| `@nestjs/core`          | `^9.0.0`    |
-| `@nestjs/graphql`       | `"^10.1.3"` |
-| `graphql`               | `^16.6.0`   |
-| `apollo-server-express` | `^3.10.3`   |
+| ライブラリ              | バージョン |
+| ----------------------- | ---------- |
+| `@nestjs/core`          | `^9.0.0`   |
+| `@nestjs/graphql`       | `^10.1.3`  |
+| `graphql`               | `^16.6.0`  |
+| `apollo-server-express` | `^3.10.3`  |
 
 また、GraphQL の開発には
 
@@ -40,9 +40,11 @@ published: true
 コードファーストとは、デコレータと TypeScript のクラスのみを使用して対応するものです。
 スキーマファーストとは、 GraphQL SDL（スキーマ定義言語）をもとにして、TypeScript 定義を自動的に生成します。
 
-## 結果、どうなるか？
+## この記事を最後まで通してやってみた結果、どうなるか？
 
-`http://localhost:3000/graphql` で Playground を開くと、GraphQL のクエリ（ミューテーション）を投げて、結果を取得できるようになります。
+`http://localhost:3000/graphql` で Playground が開けるようになります。
+
+GraphQL のクエリ（ミューテーション）を投げて、結果を取得できるようになります。
 
 ![](https://storage.googleapis.com/zenn-user-upload/1498b296f360-20221016.jpg)
 
@@ -141,7 +143,7 @@ export class TasksResolver {
 
 ```
 
-## @ObjectType()アノテーションで GraphQL の 型（Type） を設定する
+## `@ObjectType()` アノテーションで GraphQL の 型（Type） を設定する
 
 Entity のクラスに `@ObjectType()` アノテーションを付けることで、そのクラスを GraphQL の型として定義できます。
 フィールドには`@Field()` アノテーションを付けます。
@@ -220,7 +222,6 @@ export class FindTaskDto {
   @Field()
   id: number;
 }
-
 ```
 
 ```ts:src/tasks/dto/update-task.dto.ts
@@ -238,7 +239,6 @@ export class UpdateTaskDto {
   @Field()
   name: string;
 }
-
 ```
 
 ```ts:src/tasks/dto/create-task.dto.ts
@@ -252,7 +252,6 @@ export class CreateTaskDto {
   @Field()
   name: string;
 }
-
 ```
 
 ```ts:src/tasks/dto/delete-task.dto.ts
@@ -265,7 +264,6 @@ export class DeleteTaskDto {
   @Field()
   id: number;
 }
-
 ```
 
 ```ts:src/shared/dto/delete-response.dto.ts
@@ -276,7 +274,6 @@ export class DeleteResponseDto implements DeleteResponse {
   @Field() message: string;
   @Field() delete: boolean;
 }
-
 ```
 
 ```ts:src/shared/interfaces/delete-response.interface.ts
@@ -284,7 +281,6 @@ interface DeleteResponse {
   message: string;
   delete: boolean;
 }
-
 ```
 
 ## GraphQL のクエリ実行と結果
@@ -425,10 +421,18 @@ mutation {
 
 ### `GraphQLError: Query root type must be provided.` というエラーが出たときは？
 
-GraphQL サーバーは少なくとも 1 つの `@Query()` を保つ必要があります。
-`@Query()`がないと、 `applo-server` は例外を投げてサーバの起動に失敗します。
+> GraphQL サーバーは少なくとも （schema.gql に）1 つの `@Query()` を持っている必要があります。
+> `@Query()`がないと、 `applo-server` は例外を投げてサーバの起動に失敗します。
+> [GraphQLError: Query root type must be provided](https://stackoverflow.com/questions/64105940/graphqlerror-query-root-type-must-be-provided)
 
-[GraphQLError: Query root type must be provided](https://stackoverflow.com/questions/64105940/graphqlerror-query-root-type-must-be-provided)
+`schema.gql` に以下のような Query が存在していないとエラーになる、ということです。
+
+```gql
+type Query {
+  getAllTasks: [Task!]!
+  getTask(findTask: FindTaskDto!): Task!
+}
+```
 
 ### `Error: Cannot determine a GraphQL output type for the "". Make sure your class is decorated with an appropriate decorator.`というエラーが出たときは？
 
