@@ -44,40 +44,25 @@ TypeORM で データベースに接続する方法がよくわからん、と�
 ```
 $ tree src
 src
-├── database
-│   ├── database.module.ts
-│   └── seeders
-│       ├── seeder.module.ts
-│       ├── seeder.ts
-│       └── tasks
-│           ├── data.ts
-│           └── tasks.seeder.service.ts
 ├── seed.ts
-├── shared
-│   ├── dto
-│   │   └── delete-response.dto.ts
-│   └── interfaces
-│       └── delete-response.interface.ts
-└── tasks
-    ├── entities
-    │   └── task.entity.ts
-    ├── interfaces
-    │   └── task.interface.ts
-    ├── task.repository.ts
-    ├── tasks.module.ts
-
+├── seeders
+│   ├── seeder.module.ts
+│   ├── seeder.ts
+│   └── tasks
+│       ├── data.ts
+│       └── tasks.seeder.service.ts
 ```
 
 ## data.ts に投入するデータを定義する
 
-```ts:src/database/seeders/tasks/data.ts
-import { ITask } from '../../../tasks/interfaces/task.interface';
+```ts:src/seeders/tasks/data.ts
+import { ITask } from '../../tasks/interfaces/task.interface';
 
 export const tasks: ITask[] = [
-  { name: '野球' },
-  { name: 'ボクシング' },
-  { name: '縄跳び' },
-  { name: 'ステゴロ' },
+  { name: 'コード' },
+  { name: 'C言語' },
+  { name: 'NestJS' },
+  { name: 'C#' },
 ];
 
 /**
@@ -92,10 +77,10 @@ export const tasks: ITask[] = [
 
 ## TasksSeederService にデータを投入する処理を書く
 
-```ts:src/database/seeders/tasks/tasks.seeder.service.ts
+```ts:src/seeders/tasks/tasks.seeder.service.ts
 import { Injectable } from '@nestjs/common';
-import { TaskRepository } from '../../../tasks/task.repository';
-import { Task } from '../../../tasks/entities/task.entity';
+import { TaskRepository } from '../../tasks/task.repository';
+import { Task } from '../../tasks/entities/task.entity';
 import { tasks } from './data';
 
 @Injectable()
@@ -121,17 +106,19 @@ export class TasksSeederService {
 
 ## SeederModule で必要なモジュールを import する
 
-```ts:src/database/seeders/seeder.module.ts
-import { TasksModule } from '../../tasks/tasks.module';
+```ts:src/seeders/seeder.module.ts
+import { TasksModule } from '../tasks/tasks.module';
 import { Logger, Module } from '@nestjs/common';
-import { DatabaseModule } from '../database.module';
+import { DatabaseModule } from '../database/database.module';
 import { Seeder } from './seeder';
+import { TasksSeederService } from './tasks/tasks.seeder.service';
 
 @Module({
   imports: [TasksModule, DatabaseModule],
-  providers: [Logger, Seeder],
+  providers: [Logger, Seeder, TasksSeederService],
 })
 export class SeederModule {}
+
 ```
 
 ## Seeder で seed 処理をまとめる
@@ -139,7 +126,7 @@ export class SeederModule {}
 上で作った `tasksSeederService` を使って seeding を行っています。
 seed 対象のエンティティが増えたら、`seed()`から呼び出すメソッドを追加する形になります。
 
-```ts:src/database/seeders/seeder.ts
+```ts:src/seeders/seeder.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { TasksSeederService } from './tasks/tasks.seeder.service';
 
@@ -179,28 +166,6 @@ export class Seeder {
       .catch((error) => Promise.reject(error));
   }
 }
-
-```
-
-## TaskModule に TasksSeederService を追加
-
-```ts:src/tasks/tasks.module.ts
-import { Module } from '@nestjs/common';
-import { TasksService } from './tasks.service';
-import { TasksController } from './tasks.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Task } from './entities/task.entity';
-import { TaskRepository } from './task.repository';
-import { TasksResolver } from './tasks.resolver';
-import { TasksSeederService } from '../database/seeders/tasks/tasks.seeder.service';
-
-@Module({
-  imports: [TypeOrmModule.forFeature([Task])],
-  exports: [TypeOrmModule, TasksSeederService],
-  controllers: [TasksController],
-  providers: [TasksService, TaskRepository, TasksResolver, TasksSeederService],
-})
-export class TasksModule {}
 ```
 
 ## package.json に起動スクリプトを追加
