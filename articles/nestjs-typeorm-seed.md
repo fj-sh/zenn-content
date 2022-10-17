@@ -12,11 +12,11 @@ NestJS で作成したアプリケーションに初期データを投入する�
 
 seed はアプリケーション動作に必須な所謂マスタテーブルのデータを最初に登録する際などに利用します。
 
-テストに使うデータを投入する場合は fixtures を利用します。
+テストに使うデータを投入する場合は fixtures を利用します（この記事は seed データを投入する方法について書いたものです）
 
-この記事は seed データを投入する方法について書いたものです。
+[NestJS+TypeORM 0.3 で CRUD 操作を行うために TODO アプリを作ってみる](https://zenn.dev/fjsh/articles/nestjs-with-typeorm)が前提となっていますが、この記事単体でも概要は掴めるはずです。
 
-[NestJS+TypeORM 0.3 で CRUD 操作を行うために TODO アプリを作ってみる](https://zenn.dev/fjsh/articles/nestjs-with-typeorm)が前提となっていますが、この記事単体でも概要は掴めます。
+TypeORM で データベースに接続する方法がよくわからん、という方は過去記事を参考にしてみてください。
 
 ## 対象読者
 
@@ -38,6 +38,8 @@ seed はアプリケーション動作に必須な所謂マスタテーブルの
 ```
 
 ## ディレクトリ構造
+
+今回の記事で登場するファイルがあるディレクトリ構成は以下のようになっています。
 
 ```
 $ tree src
@@ -66,7 +68,7 @@ src
 
 ```
 
-## data.ts
+## data.ts に投入するデータを定義する
 
 ```ts:src/database/seeders/tasks/data.ts
 import { ITask } from '../../../tasks/interfaces/task.interface';
@@ -88,7 +90,7 @@ export const tasks: ITask[] = [
 
 ```
 
-## TasksSeederService
+## TasksSeederService にデータを投入する処理を書く
 
 ```ts:src/database/seeders/tasks/tasks.seeder.service.ts
 import { Injectable } from '@nestjs/common';
@@ -117,7 +119,7 @@ export class TasksSeederService {
 }
 ```
 
-## SeederModule
+## SeederModule で必要なモジュールを import する
 
 ```ts:src/database/seeders/seeder.module.ts
 import { TasksModule } from '../../tasks/tasks.module';
@@ -132,7 +134,10 @@ import { Seeder } from './seeder';
 export class SeederModule {}
 ```
 
-## Seeder
+## Seeder で seed 処理をまとめる
+
+上で作った `tasksSeederService` を使って seeding を行っています。
+seed 対象のエンティティが増えたら、`seed()`から呼び出すメソッドを追加する形になります。
 
 ```ts:src/database/seeders/seeder.ts
 import { Injectable, Logger } from '@nestjs/common';
