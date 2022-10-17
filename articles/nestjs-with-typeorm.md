@@ -1,5 +1,5 @@
 ---
-title: "NestJS+TypeORM 0.3 でCRUD操作を行う"
+title: "NestJS+TypeORM 0.3 でCRUD操作を行うためにTODOアプリを作ってみる"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["NestJS"]
