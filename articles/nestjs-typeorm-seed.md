@@ -168,6 +168,41 @@ export class Seeder {
 }
 ```
 
+## seed.ts から NestJS アプリケーションとして seed を実行する
+
+```ts:src/seed.ts
+import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
+import { Seeder } from './seeders/seeder';
+import { SeederModule } from './seeders/seeder.module';
+
+async function bootstrap() {
+  NestFactory.createApplicationContext(SeederModule)
+    .then((appContext) => {
+      const logger = appContext.get(Logger);
+      const seeder = appContext.get(Seeder);
+
+      seeder
+        .seed()
+        .then(() => {
+          logger.debug('Seeding complete');
+        })
+        .catch((error) => {
+          logger.error('Seeding failed!');
+          throw error;
+        })
+        .finally(() => appContext.close());
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
+bootstrap();
+
+
+```
+
 ## package.json に起動スクリプトを追加
 
 import 時にパスが参照できないエラーを解消するために、 `tsconfig-paths` をインストールします。
