@@ -37,8 +37,9 @@ $ npm init -y
 
 ### main
 
-package.json の`"main": "index.js"`にはパッケージのエントリポイントとなるJavaScriptファイルを指定します。
-インストールしたパッケージを利用する際、パッケージ名を指定して `require()`しますが、このときそのパッケージの`main`のJavaScript ファイルで `module.exports`したものが返されます。
+package.json の`"main":`にはパッケージのエントリポイントとなるJavaScriptファイルを指定します。ファイルはパッケージルートからの相対パスを指定します。
+
+インストールしたパッケージを利用する際、パッケージ名を指定して `require()`（または `import` ）しますが、このときは `main` で指定したモジュールの exports オブジェクトが返されます。
 
 ためしにエントリポイントとなる index.js を作成し、 `require()` してみます。
 
@@ -80,11 +81,7 @@ license にはパッケージ利用にあたってのライセンスを指定し
 パッケージの依存先パッケージを管理するための項目です。
 `dependencies`に依存パッケージを追加するには、`npm install <パッケージ名>`というコマンドを使用します。
 
-`npm install`を実行したら、以下のようなことが起こります。
-
-- package.jsonの`dependencies`に`rimraf`が追加される
-- node_modulesというディレクトリが作られ、その中に依存パッケージの実体が配置される
-
+コマンド例は以下です。
 
 ```console
 $ npm install rimraf
@@ -92,6 +89,11 @@ $ node
 > require('rimraf')
 [Function: rimraf] { sync: [Function: rimrafSync] }
 ```
+
+`npm install`を実行したら、以下のようなことが起こります。
+
+- package.jsonの`dependencies`に`rimraf`が追加される
+- node_modulesというディレクトリが作られ、その中に依存パッケージの実体が配置される
 
 依存関係の構造は依存ツリーと呼ばれます。
 依存ツリーは`npm ls`で可視化できます。
@@ -105,15 +107,70 @@ npm-package@1.0.0 /Users/fj/dev/js-sandbox/node/npm-package
     ├─┬ inflight@1.0.6
 ```
 
-#### バージョンの指定方法
+### devDependencies
 
-- `^`: 指定されたバージョンと互換性のあるバージョンに依存する
-  - `^2.6.3`なら、2.6.3以上かつ3.0.0未満のバージョンに依存する
-- `>1.0.2 <=2.3.4`: 1.0.2より大きく2.3.4以下のバージョンに依存する
--`~1.2.3": パッチバージョンの更新の範囲内に依存を限定する
-- "rimraf: "2.6.3": 指定内容と厳密に一致するバージョンのパッケージにしか依存しない
+devDependencies には開発時のみ必要なパッケージを書きます。
 
-依存関係の指定に範囲を持たせるのは、互換性を保った範囲でより新しいバージョンのパッケージに依存させるためです。
+`eslint` や `jest`など、本番環境で使わないパッケージは `devDependencies` に書きます。
+
+devDependencies に追加するには以下のように、`-D` か `--save-dev` オプションをつけて npm を実行します。
+
+```shell
+npm install -D A
+```
+
+### バージョンの指定方法
+
+package.json の devDependencies を見ると、バージョンに `^`（キャレット）がついていたりします。
+これらの意味を説明します。
+
+```json
+{
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.108",
+    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/parser": "^5.41.0",
+    "esbuild": "^0.15.12",
+    "eslint": "8.22.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1"
+  }
+}
+```
+
+ちなみにパッケージのバージョンの区切りは`メジャー.マイナー.パッチ`という意味です。
+
+参考：[semver(1) -- The semantic versioner for npm](https://www.npmjs.com/package/semver/v/4.3.6)
+
+
+#### チルダ「~」
+
+一番末尾のバージョンに変更があるパッケージがあった場合のみ更新します。
+
+例：`~1.2.3` なら `1.2.3` 以上 `1.3.0` 未満のバージョンに依存する
+
+#### キャレット（^）
+
+一番左端のバージョンは固定して、それ以外のバージョンで新しいものがあれば更新します。
+
+例：`^1.2.3` は `1.2.3` 以上 `2.0.0` 未満のバージョンに依存する。
+
+
+#### 全てのバージョンを許可する（*アスタリスク）
+
+```
+"vue": *
+```
+
+#### ビタっとバージョンを指定する
+
+`""`で囲めば、バージョンを固定できます。
+
+```
+"eslint": "8.22.0"
+```
+
 
 ### package-lock.json
 
@@ -133,26 +190,6 @@ package-lock.jsonによって、アプリケーションの依存の状態を完
 
 `npm install <パッケージ名>`でインストールしたパッケージをアンインストールするには`npm uninstall <パッケージ名>`を実行します。
 
-### devDependencies
-
-テストやビルドのためのパッケージ、つまり開発時のプロセスでのみ必要な依存パッケージは`devDependencies`に指定します。
-
-devDependenciesに依存パッケージを追加するには `npm install --save-dev <パッケージ名>`を実行します。
-
-
-```console
-$ npm install --save-dev mkdirp
-```
-
-上記のコマンドを実行すると、package.jsonに以下が追加されます。
-
-```json:package.json
-"devDependencies": {
-  "mkdirp": "^1.0.4"
-}
-```
-
-なお、`--save-dev`は`-D`と省略できます。
 
 ### npx
 
@@ -198,3 +235,8 @@ Yarn リリース当初 npm には package-lock.json がなかったという経
 
 すでにnpmを使っているプロジェクトをYarnに移行したい場合は`yarn import`コマンドを実行することでpackage-lock.jsonからyarn.lockを生成してくれます。
 
+
+## Pnpm 
+
+高速、かつディスク容量効率が良いパッケージマネージャーとして、[Pnpm](https://pnpm.io/ja/)を使っているプロジェクトも増えてきているようです。
+npm、yarn、pnpm で比較すると、pnpm が最も歴史が浅く、新しいです。
