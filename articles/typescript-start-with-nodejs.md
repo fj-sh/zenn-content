@@ -1,5 +1,5 @@
 ---
-title: "TypeScript + Node.js + ESLint + Prettier の環境をとにかく早く構築する"
+title: "TypeScript + Node.js + ESLint の環境をとにかく早く構築する"
 emoji: "🐥"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nodejs"]
@@ -121,7 +121,7 @@ EOF
   },
 ```
 
-## TypeScriptをビルドする
+## TypeScript をビルドする
 
 `esbuild`をインストールします。
 
@@ -137,8 +137,6 @@ package.json に以下を追記します。
   "build": "esbuild src/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
 },
 ```
-
-
 
 ## VSCode と WebStorm の設定
 
@@ -181,14 +179,14 @@ EOF
 
 キャレット（`^`）は一番左端のバージョンは固定して、それ以外のバージョンで新しいものがあれば更新する、という意味です。
 
-[npmでパッケージ管理するための基本知識](/npm-fundamentals)
+[npm でパッケージ管理するための基本知識](/npm-fundamentals)
 
 ## ESLint の `max-len: 80` を緩和する
 
-行の最大文字数が80文字である、とESLintに怒られてしまうことがあるかもしれません。
-80文字は少なすぎるので、最大文字数を120文字にしました。
+行の最大文字数が 80 文字である、と ESLint に怒られてしまうことがあるかもしれません。
+80 文字は少なすぎるので、最大文字数を 120 文字にしました。
 
-以下のように`'rules':` に `'max-len': ['error', {'code': 120}],`を設定すればOKです。
+以下のように`'rules':` に `'max-len': ['error', {'code': 120}],`を設定すれば OK です。
 
 ```js:.eslintrc.js
 module.exports = {
