@@ -1,5 +1,5 @@
 ---
-title: "TypeScript + Node.js + ESLint の環境をとにかく早く構築する"
+title: "TypeScript + Node.js + ESLint の環境をサクサクと構築する"
 emoji: "🐥"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nodejs"]
@@ -138,6 +138,20 @@ package.json に以下を追記します。
 },
 ```
 
+ここまでで package.json の `scripts` は以下のようになっています。
+
+```json:package.json
+{
+  "scripts": {
+    "start:dev": "nodemon",
+    "lint": "eslint . --ext .ts",
+    "eslint:fix": "eslint --fix",
+    "prebuild": "rm -rf dist",
+    "build": "esbuild src/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
+  },
+}
+```
+
 ## VSCode と WebStorm の設定
 
 ```shell
@@ -179,7 +193,7 @@ EOF
 
 キャレット（`^`）は一番左端のバージョンは固定して、それ以外のバージョンで新しいものがあれば更新する、という意味です。
 
-[npm でパッケージ管理するための基本知識](/npm-fundamentals)
+[npm でパッケージ管理するための基本知識](/fjsh/articles/npm-fundamentals)
 
 ## ESLint の `max-len: 80` を緩和する
 
@@ -209,6 +223,33 @@ module.exports = {
     'max-len': ['error', {'code': 150}],
   },
 };
+```
+
+## ESLint の `require-jsdoc` を無効化する
+
+`.eslintrc.js` に `'require-jsdoc': 0,` を追加します。
+
+```js:.eslintrc.js
+  'rules': {
+    'max-len': ['error', {'code': 150}],
+    'require-jsdoc': 0,
+  },
+```
+
+## dotenv を使って環境変数を読み込む
+
+```console
+npm i dotenv
+```
+
+```console
+touch .env
+```
+
+```ts
+import "dotenv/config";
+
+const { NODE_ENV } = process.env;
 ```
 
 ## 参考

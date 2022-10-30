@@ -69,7 +69,7 @@ aws iam attach-role-policy --role-name lambda-execute --policy-arn arn:aws:iam::
 
 ## AWS CLI で Lambda 関数を作成する
 
-[TypeScript + Node.js + ESLint + Prettier の環境をとにかく早く構築する](/typescript-start-with-nodejs)の記事のような、TyepScript の基本的な開発環境はできているものとします。
+[TypeScript + Node.js + ESLint + Prettier の環境をとにかく早く構築する](/fjsh/articles/typescript-start-with-nodejs)の記事のような、TyepScript の基本的な開発環境はできているものとします。
 
 `@types/aws-lambda` をインストールします。
 
