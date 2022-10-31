@@ -253,6 +253,9 @@ user.ChallengeParameters {
 }
 ```
 
+`user.ChallengeName NEW_PASSWORD_REQUIRED` というチャレンジ名が返ってきているので、「新しいパスワードを設定」する必要がありそうです。
+実際の運用では、返ってきたチャレンジ名を見て Cognito とやり取りすることになるでしょう。
+
 ## adminUserGlobalSignOut でサインアウト
 
 ```ts
