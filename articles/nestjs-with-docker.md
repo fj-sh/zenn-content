@@ -282,3 +282,9 @@ curl localhost
 
 - [Docker で Node.js を動かすときのベストプラクティス](https://blog.shinonome.io/nodejs-docker/)
 - [nestjs-boilerplate](https://github.com/Vivify-Ideas/nestjs-boilerplate)
+
+## NestJS シリーズ
+
+1. [NestJS+Nginx+MySQL の開発環境を Docker 化する](https://zenn.dev/fjsh/articles/nestjs-with-docker)
+2. [NestJS+TypeORM 0.3 系で MySQL に接続してエラーなく起動する](https://zenn.dev/fjsh/articles/nestjs-typeorm-connect-mysql)
+3. [NestJS+TypeORM 0.3 系でマイグレーションを実行する](https://zenn.dev/fjsh/articles/nestjs-typeorm-migration)
