@@ -83,7 +83,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../product/entities/product.entity';
 
 export const databaseEntities = [Product];
-export const migrationFilesDir = 'src/migration/*.ts';
+export const migrationFilesDir = './migrations/*.ts';
 
 @Module({
   imports: [
@@ -140,7 +140,7 @@ export const AppDataSource = new DataSource({
 マイグレーション用のファイルを格納するためのディレクトリを作成します。
 
 ```shell
-mkdir src/migration
+mkdir migrations
 ```
 
 ### entity からマイグレーションファイルを作成する
@@ -156,7 +156,7 @@ Docker のコンテナの中で以下のコマンドを実行すると、`src/mi
 `-d` でデータソースファイルを指定します。
 
 ```shell
-/app $ npx typeorm-ts-node-esm migration:generate src/migration/CreateProduct -d src/database/database.source.ts
+/app $ npx typeorm-ts-node-esm migration:generate ./migrations/CreateProduct -d src/database/database.source.ts
 
 # Migration /app/src/migration/1667314200578-CreateProduct.ts has been generated successfully.
 ```
