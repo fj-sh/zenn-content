@@ -10,16 +10,16 @@ published: true
 
 NestJS と TypeORM を組み合わせて使う場合、マイグレーションは TypeORM の機能を使います。
 
-## エンティティの作成
+## NestJS CLI でリソースを作成
 
-NestJS CLI で CRUD リソースを作成します。
-
-`res` は `resource` の略です。
-`--no-spec` でテストの作成を省略します。
+NestJS の CLI を使って CRUD リソースを作成します。
 
 ```shell
 nest g --no-spec res product
 ```
+
+`res` は `resource` の略です。
+`--no-spec` でテストの作成を省略します。
 
 [CLI command reference](https://docs.nestjs.com/cli/usages)
 
@@ -40,9 +40,13 @@ docker compose build --no-cache
 
 ## Entity を作成する
 
+エンティティを作成していきます。
+
+エンティティはデータベースのテーブルに対応するクラスです。
+
 `nest g --no-spec res product` で `src/product/entities` 以下に `product.entity.ts` が作られます。
 
-以下のように Entity を作ってみてください。
+以下のように Entity を修正してください。
 
 ```ts:src/product/entities/product.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
