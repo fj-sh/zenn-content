@@ -284,26 +284,26 @@ nest g res auth
 `src/auth/auth.service.ts`を修正します。
 
 ```ts:src/auth/auth.service.ts
-import { Injectable, NotAcceptableException } from "@nestjs/common";
-import { UsersService } from "../users/users.service";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
-import { User } from "../users/entities/user.entity";
-import { LoginDto } from "./dto/login.dto";
+import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
   async validateUser(
     username: string,
-    password: string
-  ): Promise<Omit<User, "hashedPassword"> | undefined> {
+    password: string,
+  ): Promise<Omit<User, 'hashedPassword'> | undefined> {
     const user = await this.usersService.findUserByName(username);
     if (!user) {
-      throw new NotAcceptableException("ユーザーが存在しません。");
+      throw new NotAcceptableException('ユーザーが存在しません。');
     }
     const passwordValid = await bcrypt.compare(password, user.hashedPassword);
 
@@ -413,7 +413,6 @@ export class AuthController {
 @UseGuards(LocalAuthGuard)
 @Post('/login')
 async login(@Body() loginDto: LoginDto) {
-    Logger.debug(`AuthController#login: ${loginDto}`);
     return this.authService.login(loginDto);
 }
 ```
