@@ -230,3 +230,5 @@ query: COMMIT
 1. [NestJS+Nginx+MySQL の開発環境を Docker 化する](https://zenn.dev/fjsh/articles/nestjs-with-docker)
 2. [NestJS+TypeORM 0.3 系で MySQL に接続してエラーなく起動する](https://zenn.dev/fjsh/articles/nestjs-typeorm-connect-mysql)
 3. [NestJS+TypeORM 0.3 系でマイグレーションを実行する](https://zenn.dev/fjsh/articles/nestjs-typeorm-migration)
+4. [NestJS で JWT 認証を実装する](https://zenn.dev/fjsh/articles/nestjs-auth-user-password)
+5. [NestJS でロールベースの認証を実装する](https://zenn.dev/fjsh/articles/nestjs-role-based-authentication)
