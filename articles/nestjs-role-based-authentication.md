@@ -49,8 +49,8 @@ npx @nestjs/cli g service users --no-spec
 
 ## User のエンティティを作成する。
 
-`users` 以下に User のエンティティを作成します。
-この記事のサンプルでは OR マッパーは使わないので、特にデコレータを貼ることもなく、普通に interface を作っているだけです。
+`users` ディレクトリ配下に User のエンティティを作成します。
+この記事のサンプルでは OR マッパーは使わないので、特にデコレータを貼ることもなく、普通に interface を定義しているだけです。
 
 ```ts:src/users/user.entity.ts
 export enum Role {
@@ -68,7 +68,7 @@ export interface User {
 
 ## `users/users.service.ts` を修正する
 
-ユーザー情報は Repository 経由でデータベースに保存するのが一般的かと思いますが、今回はサンプルなのでユーザー情報は配列で定義しておきます。
+ユーザー情報は Repository 経由でデータベースに保存するのが一般的かと思いますが、今回はサンプルなのでユーザー情報はメモリ上に配列で定義します。
 
 ```ts:src/users/users.service.ts
 import { Injectable } from '@nestjs/common';
@@ -170,7 +170,7 @@ export class AuthService {
 
 JWT トークンとは `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hcnV0byIsInN1YiI6MSwicm9sZXMiOlsidXNlciJdLCJpYXQiOjE2NjgyMzg5MDYsImV4cCI6MTY2ODI0MjUwNn0.tsfKbae4gU-DVNlU3JF2sxsIDyyKx0BrtsLS11zLEMQ`のような文字列です。
 
-この文字列はデコードできます。
+この文字列はデコードできます（ [jwt.io](https://jwt.io/) などに貼り付けるだけで OK）
 デコードすると、ペイロードと呼ばれる部分に以下のように `username`,`sub`, `roles` と一緒にトークンの有効期限が含まれていることがわかります。
 
 ```json
@@ -300,10 +300,10 @@ import { JwtStrategy } from './jwt.strategy';
 export class AuthModule {}
 ```
 
-## ユーザーのロールを確認する
+## ユーザーのロールを確認するためのデコレータを作成する
 
 コントローラのメソッドに `@HasRoles(Role.Admin)` のようなデコレータを付けて、ロールを持っているユーザー以外は値を取得できないようにします。
-まずは `Role[]` を受け取るデコレータを作ります。
+まずはユーザーが持つ `Role[]` を受け取るデコレータを作ります。
 
 ```ts:src/auth/has-roles.decorator.ts
 import { SetMetadata } from "@nestjs/common";
@@ -313,6 +313,10 @@ export const HasRoles = (...roles: Role[]) => SetMetadata("roles", roles);
 ```
 
 次に Guard を作ります。
+上の `has-roles.decorator.ts` で `SetMetadata("roles", roles)` のように書きました。
+
+`HasRoles` というデコレータのメタデータは `roles` となります。
+メタデータの `roles` に `Role[]` が格納されます。
 
 ```ts:src/auth/roles.guard.ts
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
@@ -336,6 +340,16 @@ export class RolesGuard implements CanActivate {
     return requiredRoles.some((role) => user?.roles?.includes(role));
   }
 }
+```
+
+以下の部分でメソッドに付与された `hasRoles` デコレータに渡された `Role[]` を取り出しています。
+`Role[]`を取り出して、「必要な Role 」としているわけです。
+
+```ts
+const requiredRoles = this.reflector.getAllAndOverride<Role[]>("roles", [
+  context.getHandler(),
+  context.getClass(),
+]);
 ```
 
 ## AppController にガードされたエンドポイントを設定してみる
