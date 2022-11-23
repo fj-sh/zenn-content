@@ -209,3 +209,144 @@ $ curl --location --request GET 'localhost:3000/tasks/2' \
     --header 'Content-Type: application/json'
 {"data":{"name":"サッカーする","id":2,"created_at":"2022-10-12T14:01:35.027Z","updated_at":"2022-10-13T14:38:14.711Z"}}%
 ```
+
+## ExecutionContext に何が入ってくるか？
+
+`ExecutionContext` は `ArgumentHost` を拡張したものです。
+
+`ArgumentHost` はハンドラに渡される引数を取得するためのメソッドを提供する...と公式ガイドでは紹介されているのですが、実際に使ってみないとわかりづらいので、動かしてみます。
+
+[Execution context](https://docs.nestjs.com/fundamentals/execution-context)
+
+たとえば以下のような Interceptor を作ってみます。
+
+```ts:src/app.interceptor.ts
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class AppInterceptor implements NestInterceptor {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<any> | Promise<Observable<any>> {
+    console.log('context.getType(): ', context.getType());
+    console.log('context.getClass(): ', context.getClass());
+    console.log('context.getHandler(): ', context.getHandler());
+
+    const [req] = context.getArgs();
+    console.log('req?.body:', req?.body);
+
+    return next.handle();
+  }
+}
+```
+
+作成した Interceptor を `AppController` に適用してみます。
+
+```ts:src/app.controller.ts
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { AppService } from './app.service';
+import { AppInterceptor } from './app.interceptor';
+
+@UseInterceptors(AppInterceptor)
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+}
+```
+
+適当に Body に値を詰め込んでリクエストを投げてみると...
+
+![](https://storage.googleapis.com/zenn-user-upload/4565e73099ff-20221123.jpg)
+
+以下のような値がコンソールに表示されます。
+
+```console
+context.getType():  http
+context.getClass():  [class AppController]
+context.getHandler():  [Function: getHello]
+req?.body: { message: 'こんにちは！' }
+```
+
+## Interceptor でヘッダの値を取得する
+
+リクエストで投げられたヘッダの値を見て、何らかの確認を行いたい場合もあるかもしれません。
+ここでは Interceptor でリクエストに含まれるヘッダの値を取得してみましょう。
+
+以下のような Interceptor を作ります。
+
+```ts:src/app.interceptor.ts
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class AppInterceptor implements NestInterceptor {
+  verifySignature(signature: string) {
+    return signature === 'himitudayo';
+  }
+
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<any> | Promise<Observable<any>> {
+    if (context.getType() === 'http') {
+      const request = context.switchToHttp().getRequest();
+      const signature = request.headers['signature'];
+      if (signature !== undefined) {
+        console.log('signature:', signature);
+        if (!this.verifySignature(signature)) {
+          throw new Error('署名が不正です！貴様は誰だ？');
+        }
+      }
+      console.log('署名は正しいな！通ってヨシ！');
+    }
+    return next.handle();
+  }
+}
+```
+
+Headers に `signature`: `himitudayo` を設定してリクエストを投げてみます。
+
+![](https://storage.googleapis.com/zenn-user-upload/49f6c5443355-20221123.jpg)
+
+コンソールには以下のように表示されます。
+
+```console
+signature: himitudayo
+署名は正しいな！通ってヨシ！
+```
+
+では「正しくない署名」が投げられた場合はどうでしょう？
+
+`signature: himitudayo` の部分を `signature: akunin` に変更してリクエストを投げてみます。
+
+するとサーバーからは `Internal server error` が帰ってきます。
+
+![](https://storage.googleapis.com/zenn-user-upload/ed8593adfc5a-20221123.jpg)
+
+コンソールには以下のように表示されます。
+
+```console
+signature: akunin
+[Nest] 57284  - 11/23/2022, 4:36:31 PM   ERROR [ExceptionsHandler] 署名が不正です！貴様は誰だ？
+Error: 署名が不正です！貴様は誰だ？
+```
+
+実際には、リクエストボディを共通鍵でハッシュ化した値をクライアントから `signature` として送り、
+サーバー側でも共通鍵で送られてきたリクエストボディをハッシュ化して、ハッシュ値がクライントから送信された `signature` と同じであることを確認して、改ざん検知などを行ったりします。
