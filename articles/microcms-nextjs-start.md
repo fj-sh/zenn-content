@@ -110,33 +110,27 @@ API キーは左メニュー下の「権限管理」 > API キー から確認�
 `src/lib/microcms-client.ts` を作成し、API クライアントを作成します。
 
 ```ts:src/lib/microcms-client.ts
-import { createClient } from "microcms-js-sdk";
+import { createClient} from "microcms-js-sdk";
 
-const API_KEY = process.env.API_KEY;
-const SERVICE_DOMAIN = process.env.SERVICE_DOMAIN;
-const ENDPOINT = process.env.ENDPOINT;
+const API_KEY = process.env.API_KEY
+const SERVICE_DOMAIN = process.env.SERVICE_DOMAIN
+const ENDPOINT = process.env.ENDPOINT
 
 export const getEnv = () => {
-  if (
-    API_KEY === undefined ||
-    SERVICE_DOMAIN === undefined ||
-    ENDPOINT === undefined
-  ) {
-    throw new Error(
-      `環境変数が設定されていません。 API_KEY:${API_KEY}, SERVICE_DOMAIN: ${SERVICE_DOMAIN}, ENDPOINT: ${ENDPOINT}`
-    );
+  if (!API_KEY || !SERVICE_DOMAIN  || !ENDPOINT) {
+    throw new Error(`環境変数が設定されていません。API_KEY:${API_KEY}, SERVICE_DOMAIN: ${SERVICE_DOMAIN}, ENDPOINT: ${ENDPOINT}`)
   }
   return {
     apiKey: API_KEY,
     serviceDomain: SERVICE_DOMAIN,
-    endpoint: ENDPOINT,
-  };
-};
+    endpoint: ENDPOINT
+  }
+}
 
 export const client = createClient({
   serviceDomain: getEnv().serviceDomain,
-  apiKey: getEnv().apiKey,
-});
+  apiKey: getEnv().apiKey
+})
 ```
 
 ## レスポンスのインターフェースを定義する
