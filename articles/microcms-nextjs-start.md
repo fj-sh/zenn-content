@@ -3,7 +3,7 @@ title: "microCMSのAPIから取得したデータをNext.jsで表示する"
 emoji: "👋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["microcms"]
-published: falsetrue
+published: true
 ---
 
 microCMS の API からコンテンツデータを受け取り、ブラウザに表示するまでの手順を紹介します。
