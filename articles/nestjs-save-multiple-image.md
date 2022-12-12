@@ -3,7 +3,7 @@ title: "NestJSで複数の画像をアップロードして、ローカルスト
 emoji: "🐡"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nestjs"]
-published: false
+published: true
 ---
 
 [NestJS で 1 つの画像をアップロードして、ローカルストレージに保存する](https://zenn.dev/fjsh/articles/nestjs-save-single-image) の続編ですが、一通りの作成手順を記録します。
