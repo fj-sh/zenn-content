@@ -1,5 +1,5 @@
 ---
-title: "NestJSでAWS S3 にファイルをアップロードする"
+title: "NestJSでAWS S3にファイルをアップロードする"
 emoji: "🦔"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nestjs"]
