@@ -320,7 +320,7 @@ Google ログインで取得したユーザーの情報を使って JWT トー�
 node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 ```
 
-`.env` に `JWT_SECRET` を追記します。
+`.env` に `JWT_ACCESS_SECRET` と `JWT_REFRESH_SECRET` を追記します。
 
 ```txt:.env
 JWT_ACCESS_SECRET=5f9a+mSLNiK5R6sDEleBN/2pmmnrK+XuFv9drMtra9OJqcRMOuFvwTx9s+UI
