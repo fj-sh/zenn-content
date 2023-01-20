@@ -1,5 +1,5 @@
 ---
-title: "Next.jsで「Googleでログイン」して、NestJSでトークンを検証・認可を行う"
+title: "Next.js + Firebase で「Googleでログイン」して、NestJSでトークンを検証・認可を行う"
 emoji: "💭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nextjs", "nestjs"]
@@ -9,7 +9,7 @@ published: true
 ## この記事で紹介する内容
 
 - Next.js から Firebase 経由で Google のログイン画面を開き、ユーザー情報を取得する
-- Google ログイン後に設定された idToken を使って、NestJS で作った GraphQL API にリクエストを投げる
+- Google でログインすると、idToken を取得できる。その idToken を使って、NestJS の GraphQL API にリクエストを投げる
 - NestJS 側で JWT トークンの検証を行い、正しい idToken を持っているリクエストにだけレスポンスを返す
 
 ## Firebase Authentication の Google 認証を有効化する
