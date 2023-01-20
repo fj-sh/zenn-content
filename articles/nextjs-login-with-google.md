@@ -266,12 +266,16 @@ export function createApolloClient(idToken: string | undefined) {
 }
 ```
 
+引数で `idToken` が渡された場合は、ヘッダに `Bearer ${idToken}` を設定しています。
+
 - [Apollo Docs Authentication](https://www.apollographql.com/docs/react/networking/authentication/)
 - [The best way to pass authorization header in nextJs using Apollo client? ReferenceError: localStorage is not defined](https://stackoverflow.com/questions/63054130/the-best-way-to-pass-authorization-header-in-nextjs-using-apollo-client-referen)
 
-## 認証が必要な Query を投げてみる
+## idToken 付きで Query を投げてみる
 
-JWT 認証が通った人にだけ user 情報を返すような API に対して、リクエストを投げる関数です。
+上のサンプルは mutation を投げる例ですが、 query を投げる例も貼っておきます。
+
+mutation のときと同じく、 `const client = createApolloClient(idToken);` で `idToken` をヘッダにつけています。
 
 ```ts
 import { gql } from "@apollo/client";
@@ -320,7 +324,8 @@ export const getUsers = async () => {
 
 ## NestJS で JWT 認証を行ってみる
 
-サーバー側では、`admin.auth().verifyIdToken(idToken);` にクライアントから投げた idToken を渡します。
+サーバー側では、`firebase-admin` をインポートして、 `admin.auth().verifyIdToken(idToken);` にクライアントから投げた `idToken` を渡します。
+（この `idToken` には `Bearer ` は含まれません）
 
 ```ts:src/auth/auth.service.ts
 import * as admin from 'firebase-admin';
