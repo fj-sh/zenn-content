@@ -87,7 +87,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../product/entities/product.entity';
 
 export const databaseEntities = [Product];
-export const migrationFilesDir = './migrations/*.ts';
+export const migrationFilesDir = 'src/database/migrations/*.ts';
 
 @Module({
   imports: [
@@ -144,7 +144,7 @@ export const AppDataSource = new DataSource({
 マイグレーション用のファイルを格納するためのディレクトリを作成します。
 
 ```shell
-mkdir migrations
+mkdir -p src/database/migrations
 ```
 
 ### entity からマイグレーションファイルを作成する
@@ -155,15 +155,15 @@ Docker のシェルを起動します。
 docker exec -it nest /bin/sh
 ```
 
-Docker のコンテナの中で以下のコマンドを実行すると、`src/migration`　以下にマイグレーションファイルが作成されます。
+Docker のコンテナの中で以下のコマンドを実行すると、`src/database/migrations`　以下にマイグレーションファイルが作成されます。
 
 `-d` でデータソースファイルを指定します。
 
 ```shell
-/app $ npx typeorm-ts-node-esm migration:generate ./migrations/CreateProduct -d src/database/database.source.ts
-
-# Migration /app/src/migration/1667314200578-CreateProduct.ts has been generated successfully.
+npx typeorm-ts-node-esm migration:generate src/database//migrations/CreateProduct -d src/database/database.source.ts
 ```
+
+繰り返しになりますが、 `npx typeorm-ts-node-esm ...` のコマンドはコンテナ内で実行してください。
 
 作った Entity からマイグレーションファイルを作ってくれます。
 
@@ -171,10 +171,10 @@ Docker のコンテナの中で以下のコマンドを実行すると、`src/mi
 
 ### マイグレーションを実行する
 
-次のコマンドでマイグレーションを実行します。
+次のコマンドでマイグレーションを実行します（コンテナ内で実行してください）
 
 ```shell
-/app $ npx typeorm-ts-node-esm migration:run -d src/database/database.source.ts
+npx typeorm-ts-node-esm migration:run -d src/database/database.source.ts
 ```
 
 すると、実際にデータベースに `product` テーブルを作ってくれます。
