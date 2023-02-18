@@ -20,9 +20,15 @@ QUERY + VARIABLES のサンプルも自動で生成されるので、お試し�
 
 ## 環境の準備
 
+NestJS のプロジェクト内で以下のコマンドを実行します。
+
+ドキュメントの HTML が吐き出されるディレクトリを作成します。
+
 ```shell
 mkdir -p docs/graphql/html
 ```
+
+次は Spectaql の設定ファイルです。
 
 ```shell
 touch docs/graphql/config.yml
@@ -30,7 +36,7 @@ touch docs/graphql/config.yml
 
 ## config ファイルの内容
 
-Spectaql 用の config ファイルです。
+上で作成した `config.yml` は Spectaql 用の config ファイルです。
 
 ```yaml:docs/graphql/config.yml
 introspection:
@@ -182,6 +188,14 @@ npx ts-node scripts/generate-schema.ts
   "doc:open": "npx spectaql --target-dir ./docs/graphql/html -d ./docs/graphql/config.yml"
 },
 ```
+
+3 つもコマンドがあると、どれがどれだか覚えられないので、普段は 1 つのコマンドにまとめています。
+
+```json:package.json
+    "doc": "npx ts-node scripts/generate-schema.ts & npx spectaql --target-dir ./docs/graphql/html ./docs/graphql/config.yml & npx spectaql --target-dir ./docs/graphql/html -d ./docs/graphql/config.yml",
+```
+
+GraphQL のドキュメントが見たくなったら `npm run doc` とするだけなので、けっこう便利です。
 
 ## 参考
 

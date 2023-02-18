@@ -4,7 +4,7 @@
 
 ```console
 npx zenn new:article
-npx zenn new:article --slug "nestjs-graphql"  --title "NestJS+GraphQLでJWT認証" --type "tech"
+npx zenn new:article --slug "nestjs-get-user-by-decorator"  --title "NestJS でデコレータからリクエストに入っているユーザー情報を取得する" --type "tech"
 ```
 
 ## 作成予定
