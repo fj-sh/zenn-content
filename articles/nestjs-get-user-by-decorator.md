@@ -113,6 +113,8 @@ export class AuthGuard implements CanActivate {
 
 さて、ここまで `Guard` でリクエストコンテキストにユーザーを設定して、ユーザーをデコレータで取得できるようにして...という手順を見てきました。
 
+このような面倒なことをしたのは、`Guard` をカスタマイズしていたため、公式にある [Implementing Passport JWT](https://docs.nestjs.com/security/authentication#implementing-passport-jwt) のやり方で、`@Request()` 経由で `req.user` を取得できなかったためです。
+
 ```ts
   @UseGuards(JwtAuthGuard)
   @Get('profile')
@@ -121,4 +123,5 @@ export class AuthGuard implements CanActivate {
   }
 ```
 
-[Implementing Passport JWT](https://docs.nestjs.com/security/authentication#implementing-passport-jwt)
+公式のやり方で要件を満たせて、うまく実装できる場合は、公式に従うのが良いです。
+カスタマイズして色々やりたい場合は、一つの方法としてこの記事を参考にしていただければと思います。
