@@ -51,7 +51,7 @@ FROM base as development
 
 COPY --chown=node:node package*.json ./
 
-RUN npm install
+RUN npm i
 
 COPY --chown=node:node . .
 
@@ -71,7 +71,7 @@ RUN npm run build
 
 ENV NODE_ENV=production
 
-RUN npm prune --production
+RUN npm i --omit=dev
 
 USER node
 

@@ -6,7 +6,8 @@ topics: ["nestjs"]
 published: false
 ---
 
-[]()の続きです。
+[NestJS を Docker（Alpine）で動かす](https://zenn.dev/fjsh/articles/nestjs-docker-alpine)の続きです。
+
 ローカル環境で MySQL を立ち上げて、NestJS + TypeORM で接続します。
 
 ## ローカル環境で MySQL を立ち上げる
