@@ -8,7 +8,7 @@ published: false
 
 [NestJS を Docker（Alpine）で動かす](https://zenn.dev/fjsh/articles/nestjs-docker-alpine)の続きです。
 
-ローカル環境で MySQL を立ち上げて、NestJS + TypeORM で接続します。
+ローカル環境で MySQL を立ち上げて、NestJS + TypeORM で接続するまでの手順です。
 
 ## ローカル環境で MySQL を立ち上げる
 
