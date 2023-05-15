@@ -100,7 +100,7 @@ useEffect(() => {
 ```
 
 `AppDataSource` が初期化されていないうちにデータを取得しようとして、予期せぬエラーに遭遇してしまったため、このような書き方にしています。
-もっと綺麗に書く余地はありそうです。
+サンプルのためのコードです。もっと綺麗に書く余地はあるので、個人開発以外ではあんまり真似しないようにしてください。
 
 ## Entity の作成
 
@@ -171,3 +171,19 @@ export async function saveCategory(category: Category): Promise<Category> {
 ```
 
 これらの関数を使って、データを取得し、コンポーネントで描画します。
+
+`App.tsx` 内で `import 'reflect-metadata';` のように、 `'reflect-metadata'` をインポートするのを忘れないようにします。
+
+## `"typeorm": "^0.3.15",` で`'BSON' is not defined.`エラー
+
+以下のようなエラーが出て困ったのですが、 TypeORM のバージョンを落とすことで解消しました。
+
+```
+iOS Bundling failed
+/node_modules/typeorm/browser/driver/mongodb/bson.typings.js: Export 'BSON' is not defined. (1:9)
+export { BSON };
+```
+
+```json
+"typeorm": "0.3.12",
+```
