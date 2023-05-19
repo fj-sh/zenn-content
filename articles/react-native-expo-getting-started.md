@@ -12,9 +12,9 @@ published: true
 
 ```shell
 npx create-expo-app -t expo-template-blank-typescript
-
-# ✔ What is your app named? … .
 ```
+
+既に存在するディレクトリ内にプロジェクトを作成する場合は `# ✔ What is your app named? … .` のように `.` を入力する。
 
 ## ESLint の設定
 
@@ -70,6 +70,9 @@ module.exports = {
 
 ```shell
 npm install --save-dev prettier eslint-config-prettier @trivago/prettier-plugin-sort-imports eslint-config-prettier
+```
+
+```
 touch .prettierrc.json
 ```
 
@@ -99,6 +102,9 @@ touch .prettierrc.json
 
 ```shell
 npm install react-native-paper react-native-safe-area-context
+```
+
+```
 npx pod-install
 ```
 
